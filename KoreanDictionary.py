@@ -1,3 +1,13 @@
+#############################################################################
+# KDicDisc Bot created by Joshua Choe (Caesura#5738)						#
+# Bot 'frame' was used from the Discord Bot Tutorial from HABchy #1665		#
+#																			#
+# I made this as a fun project to do over the winter break.					#
+# It seemed like there was a need for a korean dictionary bot for discord 	#
+# that wasn't being met, so just thought I might as well make one myself	#
+#############################################################################
+
+
 # These are the dependecies. The bot depends on these to function, hence the name. Please do not change these unless your adding to them, because they can break the bot.
 import discord
 import asyncio
@@ -34,6 +44,96 @@ async def on_ready():
 # This is a basic example of a call and response command. You tell it do "this" and it does it.
 @client.command()
 async def dic(*args):
+
+	# Pretty sure theres a better way to do this, but this just concatenates a query with more than one word
+	if args:
+		if len(args) > 1:
+			query = " ".join(args)
+		elif len(args) == 1:
+			query = args[0]
+
+		#Detects the language of the query
+		lang = detect(query)
+
+		#If the language detected is Korean then we are translating Korean to English
+		if lang == "ko":
+			# Sets search_url as the url that would search naver for the word
+			search_url = "http://endic.naver.com/search.nhn?sLn=kr&searchOption=all&query=" + quote(query)
+
+			# Initialize the parallel lists that we will use
+			listing_list = []
+			hanja_list = []
+			detail_link_list = []
+			definition_list = []
+			kr_ex_sent_list = []
+			en_ex_sent_list = []
+
+
+			# Opens the search page from search_url and uses BeautifulSoup to get the html for it.
+			with urllib.request.urlopen(search_url) as response:
+				soup = BeautifulSoup(response.read(), "html.parser")
+				
+				for header in soup.find_all('span', class_='fnt_e30'):
+
+					# This try except block appends the actual word
+					try:
+						listing_list.append(header.find('a').text)
+					except:
+						listing_list.append(None)
+
+					# This appends the link for each word that will go to their detailed page
+					detail_link_list.append("http://endic.naver.com" + header.find('a')['href'])
+
+					# Appends the hanja for the word (if it exists), Note only the first entry usually has hanja
+					if header.contents[2]:
+						hanja_list.append(header.contents[2].strip())
+					else:
+						hanja_list.append("")
+					
+				#This is the overall html block that contains the definition and example sentences
+				for block in soup.find_all('div', class_='align_right'):
+					definition_list.append(block.find('span', class_='fnt_k05').text)
+
+					# If the korean example sentence is able to be found, append it
+					if block.find('span', class_='fnt_e07 _ttsText'):
+						kr_ex_sent_list.append(block.find('span', class_='fnt_e07 _ttsText').text)
+					else:
+						kr_ex_sent_list.append("")
+
+					# If the english example sentence is able to be found, append it
+					if block.find('span', class_='fnt_k10 _ttsText'):
+						en_ex_sent_list.append(block.find('span', class_='fnt_k10 _ttsText').text)
+					else:
+						en_ex_sent_list.append("")
+
+			response.close()
+
+			# Checks to make sure that the very first entry has a value (aka an example sentence)
+			# If not, then we output 'no example sentence'
+			# If so, then we output the sentence
+			if kr_ex_sent_list[0] == "":
+				single_output = """**[{0}:]({1})** {2} {3}\n\t*No example sentence.*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0])
+			else:
+				single_output = """**[{0}:]({1})** {2} {3}\n\t*{4}*\n\t*{5}*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0])
+
+			# Sets up the embed and outputs it to discord
+			embed_title = "Results for {0}".format(query)
+			simple_em = discord.Embed(title=embed_title, description=single_output, url=search_url, colour=discord.Colour.red())
+			await client.say(embed=simple_em)
+
+		#then we are translating English to Korean
+		elif query.isalpha() == True:
+			
+
+
+			await client.say("Translating English to Korean")
+
+		else:
+			await client.say("Invalid input or a non Korean/English language! Please try again.")
+
+# Same method, but allowing for the korean equivalent of typing 'dic' but on a korean keyboard
+@client.command()
+async def 얓(*args):
 
 	if args:
 		if len(args) > 1:
@@ -115,21 +215,6 @@ async def dic(*args):
 
 		else:
 			await client.say("Invalid input or a non Korean/English language! Please try again.")
-
-	#query now holds the data we need to look up
-
-
-	#url = 'http://endic.naver.com/search.nhn?sLn=kr&isOnlyViewEE=N&query={0}'.format(args) # write the url here
-
-	#usock = urlopen(url)
-	#data = usock.read()
-
-	
-
-	#usock.close()
-
-	#await client.say(":ping_pong: Pong!")
-	#await asyncio.sleep(3)
 # After you have modified the code, feel free to delete the line above (line 33) so it does not keep popping up everytime you initiate the ping commmand.
 	
 client.run('MzkzODg5Mzg4MDQxNDY5OTYy.DR8Vow.TdKrp-NpkXVVYVGT3UW6qDoGzpU')

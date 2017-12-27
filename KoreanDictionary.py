@@ -70,26 +70,30 @@ async def dic(*args):
 
 					#get the link to show more definitions for each on of these
 
-				for definition in soup.find_all('span', class_='fnt_k05'):
-					definition_list.append(definition.text)
+				for block in soup.find_all('div', class_='align_right'):
+					definition_list.append(block.find('span', class_='fnt_k05').text)
 
+					if block.find('span', class_='fnt_e07 _ttsText'):
+						kr_ex_sent_list.append(block.find('span', class_='fnt_e07 _ttsText').text)
+					else:
+						kr_ex_sent_list.append("")
 
-				for kr_ex_sent in soup.find_all('span', class_='fnt_e07 _ttsText'):
-					kr_ex_sent_list.append(kr_ex_sent.text)
-
-
-				for en_ex_sent in soup.find_all('span', class_='fnt_k10 _ttsText'):
-					en_ex_sent_list.append(en_ex_sent.text)
+					if block.find('span', class_='fnt_k10 _ttsText'):
+						en_ex_sent_list.append(block.find('span', class_='fnt_k10 _ttsText').text)
+					else:
+						en_ex_sent_list.append("")
 
 			response.close()
 
-
-
-			simple_output = """**[{2}:]({6})** {3}\n\t*{4}*\n\t*{5}*\n---\n**[{7}:]({11})** {8}\n\t*{9}*\n\t*{10}*""".format(query,search_url,listing_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0],detail_link_list[0],listing_list[1],definition_list[1],kr_ex_sent_list[1],en_ex_sent_list[1],detail_link_list[1])
+			if kr_ex_sent_list[0] == "":
+				single_output = """**[{0}:]({1})** {2}\n\t*No example sentence.*""".format(listing_list[0],detail_link_list[0],definition_list[0])
+			else:
+				single_output = """**[{0}:]({1})** {2}\n\t*{3}*\n\t*{4}*""".format(listing_list[0],detail_link_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0])
+			#simple_output = """**[{2}:]({6})** {3}\n\t*{4}*\n\t*{5}*\n---\n**[{7}:]({11})** {8}\n\t*{9}*\n\t*{10}*""".format(query,search_url,listing_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0],detail_link_list[0],listing_list[1],definition_list[1],kr_ex_sent_list[1],en_ex_sent_list[1],detail_link_list[1])
 
 			embed_title = "Results for {0}".format(query)
 
-			simple_em = discord.Embed(title=embed_title, description=simple_output, url=search_url, colour=discord.Colour.red())
+			simple_em = discord.Embed(title=embed_title, description=single_output, url=search_url, colour=discord.Colour.red())
 
 
 			await client.say(embed=simple_em)

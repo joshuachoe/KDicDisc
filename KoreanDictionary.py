@@ -27,8 +27,8 @@ async def on_ready():
 	print('Support Discord Server: https://discord.gg/FNNNgqb')
 	print('Github Link: https://github.com/Habchy/BasicBot')
 	print('--------')
-	print('Created by Habchy#1665')
-	print()
+	print('Bot Tutorial created by Habchy#1665')
+	print('KDicDisc created by Caesura#5738')
 	print()
 
 # This is a basic example of a call and response command. You tell it do "this" and it does it.
@@ -48,10 +48,12 @@ async def dic(*args):
 			search_url = "http://endic.naver.com/search.nhn?sLn=kr&searchOption=all&query=" + quote(query)
 
 			listing_list = []
+			hanja_list = []
 			detail_link_list = []
 			definition_list = []
 			kr_ex_sent_list = []
 			en_ex_sent_list = []
+
 
 
 			with urllib.request.urlopen(search_url) as response:
@@ -68,6 +70,11 @@ async def dic(*args):
 					# This appends the link for each word that will go to their detailed page
 					detail_link_list.append("http://endic.naver.com" + header.find('a')['href'])
 
+					if header.contents[2]:
+						hanja_list.append(header.contents[2].strip())
+					else:
+						hanja_list.append("")
+					
 					#get the link to show more definitions for each on of these
 
 				for block in soup.find_all('div', class_='align_right'):
@@ -86,9 +93,9 @@ async def dic(*args):
 			response.close()
 
 			if kr_ex_sent_list[0] == "":
-				single_output = """**[{0}:]({1})** {2}\n\t*No example sentence.*""".format(listing_list[0],detail_link_list[0],definition_list[0])
+				single_output = """**[{0}:]({1})** {2} {3}\n\t*No example sentence.*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0])
 			else:
-				single_output = """**[{0}:]({1})** {2}\n\t*{3}*\n\t*{4}*""".format(listing_list[0],detail_link_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0])
+				single_output = """**[{0}:]({1})** {2} {3}\n\t*{4}*\n\t*{5}*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0])
 			#simple_output = """**[{2}:]({6})** {3}\n\t*{4}*\n\t*{5}*\n---\n**[{7}:]({11})** {8}\n\t*{9}*\n\t*{10}*""".format(query,search_url,listing_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0],detail_link_list[0],listing_list[1],definition_list[1],kr_ex_sent_list[1],en_ex_sent_list[1],detail_link_list[1])
 
 			embed_title = "Results for {0}".format(query)
@@ -107,7 +114,7 @@ async def dic(*args):
 			await client.say("Translating English to Korean")
 
 		else:
-			await client.say("Only English and Korean are supported! Please try again.")
+			await client.say("Invalid input or a non Korean/English language! Please try again.")
 
 	#query now holds the data we need to look up
 

@@ -1,5 +1,5 @@
 #############################################################################
-# KDicDisc Bot created by Joshua Choe (Caesura#5738)						#
+# Sajeon Bot created by Joshua Choe (Caesura#5738)						#
 # Bot 'frame' was used from the Discord Bot Tutorial from HABchy #1665		#
 #																			#
 # I made this as a fun project to do over the winter break.					#
@@ -21,7 +21,7 @@ import urllib.request
 from urllib.parse import quote
 
 # Here you can modify the bot's prefix and description and wether it sends help in direct messages or not.
-client = Bot(description="Use '.kdic ___' to summon a definition from naver!", command_prefix="^", pm_help = True)
+client = Bot(description="Use '^dic or ^얓 ___' to summon a definition from naver!", command_prefix="^", pm_help = True)
 
 # This is what happens everytime the bot launches. In this case, it prints information like server count, user count the bot is connected to, and the bot id in the console.
 # Do not mess with it because the bot can break, if you wish to do so, please consult me or someone trusted.
@@ -38,7 +38,7 @@ async def on_ready():
 	print('Github Link: https://github.com/Habchy/BasicBot')
 	print('--------')
 	print('Bot Tutorial created by Habchy#1665')
-	print('KDicDisc created by Caesura#5738')
+	print('Sajeon created by Caesura#5738')
 	print()
 
 # This is a basic example of a call and response command. You tell it do "this" and it does it.
@@ -217,7 +217,7 @@ async def 얓(*args):
 			await client.say("Invalid input or a non Korean/English language! Please try again.")
 # After you have modified the code, feel free to delete the line above (line 33) so it does not keep popping up everytime you initiate the ping commmand.
 	
-client.run('MzkzODg5Mzg4MDQxNDY5OTYy.DR8Vow.TdKrp-NpkXVVYVGT3UW6qDoGzpU')
+client.run('Mzk2MDAxNDU4ODUzNzczMzEy.DSbEnw.dM4dlOK0kyQmUllobxy8TF2FCbg')
 
 # Basic Bot was created by Habchy#1665
 # Please join this Discord server if you need help: https://discord.gg/FNNNgqb

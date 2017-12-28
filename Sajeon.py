@@ -1,5 +1,5 @@
 #############################################################################
-# Sajeon Bot created by Joshua Choe (Caesura#5738)						#
+# Sajeon Bot created by Joshua Choe (Caesura#5738)							#
 # Bot 'frame' was used from the Discord Bot Tutorial from HABchy #1665		#
 #																			#
 # I made this as a fun project to do over the winter break.					#
@@ -32,7 +32,7 @@ async def on_ready():
 	print('Current Discord.py Version: {} | Current Python Version: {}'.format(discord.__version__, platform.python_version()))
 	print('--------')
 	print('Use this link to invite {}:'.format(client.user.name))
-	print('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=126016'.format(client.user.id))
+	print('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=117824'.format(client.user.id))
 	print('--------')
 	print('Support Discord Server: https://discord.gg/FNNNgqb')
 	print('Github Link: https://github.com/Habchy/BasicBot')

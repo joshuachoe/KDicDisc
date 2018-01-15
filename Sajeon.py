@@ -112,7 +112,7 @@ async def dic(*args):
 			# If not, then we output 'no example sentence'
 			# If so, then we output the sentence
 			if kr_ex_sent_list[0] == "":
-				single_output = """**[{0}:]({1})** {2} {3}\n\t*No example sentence.*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0])
+				single_output = """**[{0}:]({1})** {2} {3}\n\t*예시 문장이 없습니다 / No example sentence*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0])
 			else:
 				single_output = """**[{0}:]({1})** {2} {3}\n\t*{4}*\n\t*{5}*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0])
 
@@ -122,11 +122,73 @@ async def dic(*args):
 			await client.say(embed=simple_em)
 
 		#then we are translating English to Korean
-		elif query.isalpha() == True:
+		elif query.isalpha() == True or lang == 'en':
 			
+			# Sets search_url as the url that would search naver for the word
+			search_url = "http://endic.naver.com/search.nhn?sLn=kr&isOnlyViewEE=N&query=" + quote(query)
+
+			# Initialize the parallel lists that we will use
+			listing_list = []
+			part_of_speech_list = []
+			detail_link_list = []
+			definition_list = []
+			kr_ex_sent_list = []
+			en_ex_sent_list = []
 
 
-			await client.say("Translating English to Korean")
+			# Opens the search page from search_url and uses BeautifulSoup to get the html for it.
+			with urllib.request.urlopen(search_url) as response:
+				soup = BeautifulSoup(response.read(), "html.parser")
+				
+				for header in soup.find_all('span', class_='fnt_e30'):
+
+					# This try except block appends the actual word
+					try:
+						listing_list.append(header.find('a').text)
+					except:
+						listing_list.append(None)
+
+					# This appends the link for each word that will go to their detailed page
+					detail_link_list.append("http://endic.naver.com" + header.find('a')['href'])
+
+
+				#This is the overall html block that contains the definition and example sentences
+				for block in soup.find_all('div', class_='align_right'):
+					if block.find('span', class_='fnt_k09'):
+						part_of_speech_list.append(block.find('span', class_='fnt_k09').text)
+					else:
+						part_of_speech_list.append("")
+					
+
+
+					definition_list.append(block.find('span', class_='fnt_k05').text)
+
+					# If the korean example sentence is able to be found, append it
+					if block.find('span', class_='fnt_e07 _ttsText'):
+						en_ex_sent_list.append(block.find('span', class_='fnt_e07 _ttsText').text)
+					else:
+						en_ex_sent_list.append("")
+
+					# If the english example sentence is able to be found, append it
+					if block.find('span', class_='fnt_k10 _ttsText'):
+						kr_ex_sent_list.append(block.find('span', class_='fnt_k10 _ttsText').text)
+					else:
+						kr_ex_sent_list.append("")
+
+			response.close()
+
+			# Checks to make sure that the very first entry has a value (aka an example sentence)
+			# If not, then we output 'no example sentence'
+			# If so, then we output the sentence
+			if en_ex_sent_list[0] == "":
+				single_output = """**[{0}:]({1})** {2} {3}\n\t*No example sentence / 예시 문장이 없습니다*""".format(listing_list[0],detail_link_list[0],part_of_speech_list[0],definition_list[0])
+			else:
+				single_output = """**[{0}:]({1})** {2}  {3}\n\t*{4}*\n\t*{5}*""".format(listing_list[0],detail_link_list[0],part_of_speech_list[0],definition_list[0],en_ex_sent_list[0],kr_ex_sent_list[0])
+
+			# Sets up the embed and outputs it to discord
+			embed_title = "Results for {0}".format(query)
+			simple_em = discord.Embed(title=embed_title, description=single_output, url=search_url, colour=discord.Colour.blue())
+			await client.say(embed=simple_em)
 
 		else:
 			await client.say("Invalid input or a non Korean/English language! Please try again.")
@@ -193,7 +255,7 @@ async def 얓(*args):
 			response.close()
 
 			if kr_ex_sent_list[0] == "":
-				single_output = """**[{0}:]({1})** {2} {3}\n\t*No example sentence.*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0])
+				single_output = """**[{0}:]({1})** {2} {3}\n\t*예시 문장이 없습니다 / No example sentence*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0])
 			else:
 				single_output = """**[{0}:]({1})** {2} {3}\n\t*{4}*\n\t*{5}*""".format(listing_list[0],detail_link_list[0],hanja_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0])
 			#simple_output = """**[{2}:]({6})** {3}\n\t*{4}*\n\t*{5}*\n---\n**[{7}:]({11})** {8}\n\t*{9}*\n\t*{10}*""".format(query,search_url,listing_list[0],definition_list[0],kr_ex_sent_list[0],en_ex_sent_list[0],detail_link_list[0],listing_list[1],definition_list[1],kr_ex_sent_list[1],en_ex_sent_list[1],detail_link_list[1])
@@ -207,17 +269,79 @@ async def 얓(*args):
 
 			#await client.say(url) #get a url shortener
 
-		elif query.isalpha() == True:
-			#then we are translating English to Korean
+		elif query.isalpha() == True or lang == 'en':
+			
+			# Sets search_url as the url that would search naver for the word
+			search_url = "http://endic.naver.com/search.nhn?sLn=kr&isOnlyViewEE=N&query=" + quote(query)
+
+			# Initialize the parallel lists that we will use
+			listing_list = []
+			part_of_speech_list = []
+			detail_link_list = []
+			definition_list = []
+			kr_ex_sent_list = []
+			en_ex_sent_list = []
 
 
-			await client.say("Translating English to Korean")
+			# Opens the search page from search_url and uses BeautifulSoup to get the html for it.
+			with urllib.request.urlopen(search_url) as response:
+				soup = BeautifulSoup(response.read(), "html.parser")
+				
+				for header in soup.find_all('span', class_='fnt_e30'):
+
+					# This try except block appends the actual word
+					try:
+						listing_list.append(header.find('a').text)
+					except:
+						listing_list.append(None)
+
+					# This appends the link for each word that will go to their detailed page
+					detail_link_list.append("http://endic.naver.com" + header.find('a')['href'])
+
+
+				#This is the overall html block that contains the definition and example sentences
+				for block in soup.find_all('div', class_='align_right'):
+					if block.find('span', class_='fnt_k09'):
+						part_of_speech_list.append(block.find('span', class_='fnt_k09').text)
+					else:
+						part_of_speech_list.append("")
+					
+
+
+					definition_list.append(block.find('span', class_='fnt_k05').text)
+
+					# If the korean example sentence is able to be found, append it
+					if block.find('span', class_='fnt_e07 _ttsText'):
+						en_ex_sent_list.append(block.find('span', class_='fnt_e07 _ttsText').text)
+					else:
+						en_ex_sent_list.append("")
+
+					# If the english example sentence is able to be found, append it
+					if block.find('span', class_='fnt_k10 _ttsText'):
+						kr_ex_sent_list.append(block.find('span', class_='fnt_k10 _ttsText').text)
+					else:
+						kr_ex_sent_list.append("")
+
+			response.close()
+
+			# Checks to make sure that the very first entry has a value (aka an example sentence)
+			# If not, then we output 'no example sentence'
+			# If so, then we output the sentence
+			if en_ex_sent_list[0] == "":
+				single_output = """**[{0}:]({1})** {2} {3}\n\t*No example sentence / 예시 문장이 없습니다*""".format(listing_list[0],detail_link_list[0],part_of_speech_list[0],definition_list[0])
+			else:
+				single_output = """**[{0}:]({1})** {2} {3}\n\t*{4}*\n\t*{5}*""".format(listing_list[0],detail_link_list[0],part_of_speech_list[0],definition_list[0],en_ex_sent_list[0],kr_ex_sent_list[0])
+
+			# Sets up the embed and outputs it to discord
+			embed_title = "Results for {0}".format(query)
+			simple_em = discord.Embed(title=embed_title, description=single_output, url=search_url, colour=discord.Colour.blue())
+			await client.say(embed=simple_em)
 
 		else:
 			await client.say("Invalid input or a non Korean/English language! Please try again.")
 # After you have modified the code, feel free to delete the line above (line 33) so it does not keep popping up everytime you initiate the ping commmand.
 	
-client.run('Mzk2MDAxNDU4ODUzNzczMzEy.DSbEnw.dM4dlOK0kyQmUllobxy8TF2FCbg')
+client.run('Enter the token here.')
 
 # Basic Bot was created by Habchy#1665
 # Please join this Discord server if you need help: https://discord.gg/FNNNgqb
